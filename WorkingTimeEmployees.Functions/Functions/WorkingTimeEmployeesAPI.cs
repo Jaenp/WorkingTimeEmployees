@@ -118,5 +118,78 @@ namespace WorkingTimeEmployees.Functions.Functions
             });
         }
 
+        [FunctionName(nameof(GetAllWorkingTimeEmployees))]
+        public static async Task<IActionResult> GetAllWorkingTimeEmployees(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "WorkingTimeEmployees")] HttpRequest req,
+            [Table("WorkingTimeEmployees", Connection = "AzureWebJobsStorage")] CloudTable workingTimeTable,
+            ILogger log)
+        {
+            log.LogInformation("All jobs recieved.");
+
+            TableQuery<WorkingTimeEmployeesEntity> query = new TableQuery<WorkingTimeEmployeesEntity>();
+            TableQuerySegment<WorkingTimeEmployeesEntity> workings = await workingTimeTable.ExecuteQuerySegmentedAsync(query, null);
+
+            log.LogInformation("Retrieved all workings");
+
+            return new OkObjectResult(new Response
+            {
+                Message = "Retrieved all workings",
+                Result = workings
+            });
+        }
+
+        [FunctionName(nameof(GetWorkingTimeEmployeesById))]
+        public static IActionResult GetWorkingTimeEmployeesById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "WorkingTimeEmployees/{Id_Employees}")] HttpRequest req,
+            [Table("WorkingTimeEmployees", "WORKINGTIMEEMPLOYEES", "{Id_Employees}", Connection = "AzureWebJobsStorage")] WorkingTimeEmployeesEntity workingTimeEmployeesEntity,
+            string Id_Employees,
+            ILogger log)
+        {
+            log.LogInformation($"Get working by Id: {Id_Employees}, recieved.");
+
+            if (workingTimeEmployeesEntity == null)
+            {
+                return new BadRequestObjectResult(new Response
+                {
+                    Message = "Working not found."
+                });
+            }
+
+            log.LogInformation($"Working: {workingTimeEmployeesEntity.RowKey}, retrieved.");
+
+            return new OkObjectResult(new Response
+            {
+                Message = "Retrieved working",
+                Result = workingTimeEmployeesEntity
+            });
+        }
+
+        [FunctionName(nameof(DeleteWorkingTimeEmployees))]
+        public static async Task<IActionResult> DeleteWorkingTimeEmployees(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "WorkingTimeEmployees/{Id_Employees}")] HttpRequest req,
+            [Table("WorkingTimeEmployees", "WORKINGTIMEEMPLOYEES", "{Id_Employees}", Connection = "AzureWebJobsStorage")] WorkingTimeEmployeesEntity workingTimeEmployeesEntity,
+             [Table("WorkingTimeEmployees", Connection = "AzureWebJobsStorage")] CloudTable workingTimeTable,
+            string Id_Employees,
+            ILogger log)
+        {
+            log.LogInformation($"Delete working: {Id_Employees}, recieved.");
+
+            if (workingTimeEmployeesEntity == null)
+            {
+                return new BadRequestObjectResult(new Response
+                {
+                    Message = "Working not found."
+                });
+            }
+
+            await workingTimeTable.ExecuteAsync(TableOperation.Delete(workingTimeEmployeesEntity));
+            log.LogInformation($"Working: {workingTimeEmployeesEntity.RowKey}, deleted.");
+
+            return new OkObjectResult(new Response
+            {
+                Message = "Deleted working",
+                Result = workingTimeEmployeesEntity
+            });
+        }
     }
 }
