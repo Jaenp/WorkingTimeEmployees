@@ -191,5 +191,42 @@ namespace WorkingTimeEmployees.Functions.Functions
                 Result = workingTimeEmployeesEntity
             });
         }
+
+        [FunctionName(nameof(GetWorkingTimeEmployeesByDate))]
+        public static async Task<IActionResult> GetWorkingTimeEmployeesByDate(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "WorkingTimeEmployees/{DateTime}")] HttpRequest req,
+            [Table("WorkingTimeEmployeesConsolidate", Connection = "AzureWebJobsStorage")] CloudTable workingTimeTable,
+            DateTime DateTime,
+            ILogger log)
+        {
+            if (string.IsNullOrEmpty(DateTime.ToString()))
+            {
+                return new BadRequestObjectResult(new Response
+                {
+                    Message = "Insert a date valid."
+                });
+            }
+
+            log.LogInformation("Recieved a new register");
+            string filter = TableQuery.GenerateFilterConditionForDate("DateClient", QueryComparisons.Equal, DateTime);
+            TableQuery<WorkingTimeEmployeesConsolidate> query = new TableQuery<WorkingTimeEmployeesConsolidate>().Where(filter);
+            TableQuerySegment<WorkingTimeEmployeesConsolidate> allCheckConsolidateEntity = await workingTimeTable.ExecuteQuerySegmentedAsync(query, null);
+
+            if (allCheckConsolidateEntity == null || allCheckConsolidateEntity.Results.Count.Equals(0))
+            {
+                return new OkObjectResult(new Response
+                {
+                    Message = "Date not found.",
+                });
+            }
+            else
+            {
+                return new OkObjectResult(new Response
+                {
+                    Message = $"Get all registers from consolidate. Date:{DateTime}",
+                    Result = allCheckConsolidateEntity
+                });
+            }
+        }
     }
 }

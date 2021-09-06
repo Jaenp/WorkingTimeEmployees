@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31605.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkingTimeEmployees.Functions", "WorkingTimeEmployees.Functions\WorkingTimeEmployees.Functions.csproj", "{A6B9B984-ECC5-43C3-85FA-6A5685E8B33B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkingTimeEmployees.Functions", "WorkingTimeEmployees.Functions\WorkingTimeEmployees.Functions.csproj", "{A6B9B984-ECC5-43C3-85FA-6A5685E8B33B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkingTimeEmployees.Test", "WorkingTimeEmployees.Test\WorkingTimeEmployees.Test.csproj", "{10829D82-4AD0-45C7-9C78-097E05CFF6AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkingTimeEmployees.Test", "WorkingTimeEmployees.Test\WorkingTimeEmployees.Test.csproj", "{10829D82-4AD0-45C7-9C78-097E05CFF6AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkingTimeEmployees.Common", "WorkingTimeEmployees.Common\WorkingTimeEmployees.Common.csproj", "{D01BE2AF-C3D9-487A-986B-D2EA5CC77D9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkingTimeEmployees.Common", "WorkingTimeEmployees.Common\WorkingTimeEmployees.Common.csproj", "{D01BE2AF-C3D9-487A-986B-D2EA5CC77D9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
