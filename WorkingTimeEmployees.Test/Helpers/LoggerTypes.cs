@@ -4,7 +4,9 @@ using System.Text;
 
 namespace WorkingTimeEmployees.Test.Helpers
 {
-    class LoggerTypes
+    public enum LoggerTypes
     {
+            Null,
+            List
     }
 }
