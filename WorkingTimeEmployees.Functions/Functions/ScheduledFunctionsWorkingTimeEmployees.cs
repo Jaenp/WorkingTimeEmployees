@@ -16,62 +16,47 @@ namespace WorkingTimeEmployees.Functions.Entities
             [Table("WorkingTimeEmployeesConsolidated", Connection = "AzureWebJobsStorage")] CloudTable workingTimeEmployeesTable2,
             ILogger log)
         {
-            // CheckEntity = Tabla 1
+            // Consolidate table WorkingTimeEmployees
             string filter = TableQuery.GenerateFilterConditionForBool("Consolidated", QueryComparisons.Equal, false);
             TableQuery<WorkingTimeEmployeesEntity> query = new TableQuery<WorkingTimeEmployeesEntity>().Where(filter);
             TableQuerySegment<WorkingTimeEmployeesEntity> allWorkingTimeEmployeesEntityTable = await workingTimeEmployeesTable.ExecuteQuerySegmentedAsync(query, null);
 
-            //CheckConsolidateEntity = Tabla 2
+            //Consolidate table WorkingTimeEmployeesConsolidate
             TableQuery<WorkingTimeEmployeesConsolidate> queryConsolidate = new TableQuery<WorkingTimeEmployeesConsolidate>();
             TableQuerySegment<WorkingTimeEmployeesConsolidate> allWorkingTimeEmployeesConsolidateEntity = await workingTimeEmployeesTable2.ExecuteQuerySegmentedAsync(queryConsolidate, null);
 
-            log.LogInformation($"Entrando al primer foreach");
             foreach (WorkingTimeEmployeesEntity item in allWorkingTimeEmployeesEntityTable)
             {
-                log.LogInformation($"Este es el primer if");
                 if (!string.IsNullOrEmpty(item.Id_Employees.ToString()) && item.Type == 0)
                 {
-                    log.LogInformation($"Este es el segundo foreach");
                     foreach (WorkingTimeEmployeesEntity itemtwo in allWorkingTimeEmployeesEntityTable)
                     {
                         TimeSpan dateCalculated = (itemtwo.RegistrationDateTime - item.RegistrationDateTime);
-                        log.LogInformation($"Este es el tercer foreach");
                         if (itemtwo.Id_Employees.Equals(item.Id_Employees) && itemtwo.Type == 1)
                         {
-                            log.LogInformation($"Este es el IDRowKey, {item.RowKey}, {itemtwo.RowKey}");
-
-                            WorkingTimeEmployeesEntity check = new WorkingTimeEmployeesEntity
-                            {
-                                Id_Employees = itemtwo.Id_Employees,
-                                RegistrationDateTime = itemtwo.RegistrationDateTime,
-                                Type = itemtwo.Type,
-                                Consolidated = true,
-                                PartitionKey = "WORKINGTIMEEMPLOYEES",
-                                RowKey = itemtwo.RowKey,
-                                ETag = "*"
-                            };
-                            WorkingTimeEmployeesEntity checkEmployees = new WorkingTimeEmployeesEntity
-                            {
-                                Id_Employees = item.Id_Employees,
-                                RegistrationDateTime = item.RegistrationDateTime,
-                                Type = item.Type,
-                                Consolidated = true,
-                                PartitionKey = "WORKINGTIMEEMPLOYEES",
-                                RowKey = item.RowKey,
-                                ETag = "*"
-                            };
-
-                            TableOperation updateCheckEntity = TableOperation.Replace(check);
-                            await workingTimeEmployeesTable.ExecuteAsync(updateCheckEntity);
-                            
-                            TableOperation updateCheckEntityEmployees = TableOperation.Replace(checkEmployees);
-                            await workingTimeEmployeesTable.ExecuteAsync(updateCheckEntityEmployees);
+                            await saveRegisterInDb(itemtwo, workingTimeEmployeesTable);
+                            await saveRegisterInDb(item, workingTimeEmployeesTable);
                             await ConsolidateTableWorkingTimeEmployees(allWorkingTimeEmployeesConsolidateEntity, item, itemtwo, dateCalculated, workingTimeEmployeesTable2);
                         }
                     }
                 }
             }
         }
+
+        public static WorkingTimeEmployeesEntity saveRegister(WorkingTimeEmployeesEntity register){
+            WorkingTimeEmployeesEntity checkEmployees = new WorkingTimeEmployeesEntity
+            {
+                Id_Employees = register.Id_Employees,
+                RegistrationDateTime = register.RegistrationDateTime,
+                Type = register.Type,
+                Consolidated = true,
+                PartitionKey = "WORKINGTIMEEMPLOYEES",
+                RowKey = register.RowKey,
+                ETag = "*"
+            };
+            return checkEmployees;
+        }
+
         public static async Task ConsolidateTableWorkingTimeEmployees(TableQuerySegment<WorkingTimeEmployeesConsolidate> consolidateWorkingTimeEmplpoyeesEntity, WorkingTimeEmployeesEntity item, WorkingTimeEmployeesEntity itemTwo, TimeSpan dateCalculated, CloudTable workingTimeTable2)
         {
             if (consolidateWorkingTimeEmplpoyeesEntity.Results.Count == 0)
@@ -86,17 +71,14 @@ namespace WorkingTimeEmployees.Functions.Entities
                     ETag = "*"
                 };
 
-                TableOperation insertCheckConsolidate = TableOperation.Insert(checkConsolidate);
-                await workingTimeTable2.ExecuteAsync(insertCheckConsolidate);
+                await saveRegisterInDb(checkConsolidate, workingTimeTable2);
             }
             else
             {
                 foreach (WorkingTimeEmployeesConsolidate itemConsolidation in consolidateWorkingTimeEmplpoyeesEntity)
                 {
-                    //log.LogInformation("Actualizando consolidado segunda tabla");
                     if (itemConsolidation.Id_Employees == item.Id_Employees)
                     {
-
                         WorkingTimeEmployeesConsolidate checkConsolidateFor = new WorkingTimeEmployeesConsolidate
                         {
                             Id_Employees = itemConsolidation.Id_Employees,
@@ -107,8 +89,7 @@ namespace WorkingTimeEmployees.Functions.Entities
                             ETag = "*"
                         };
 
-                        TableOperation insertConsolidate = TableOperation.Replace(checkConsolidateFor);
-                        await workingTimeTable2.ExecuteAsync(insertConsolidate);
+                        await saveRegisterInDb(checkConsolidateFor, workingTimeTable2);
                     }
                     else
                     {
@@ -123,11 +104,21 @@ namespace WorkingTimeEmployees.Functions.Entities
                             ETag = "*"
                         };
 
-                        TableOperation insertConsolidate = TableOperation.Insert(checkConsolidateFor);
-                        await workingTimeTable2.ExecuteAsync(insertConsolidate);
+                        await saveRegisterInDb(checkConsolidateFor, workingTimeTable2);
                     }
                 }
             }
         }
+
+        public static async Task saveRegisterInDb(WorkingTimeEmployeesConsolidate consolidate, CloudTable workingTimeTable2) {
+            TableOperation insertConsolidate = TableOperation.Insert(consolidate);
+            await workingTimeTable2.ExecuteAsync(insertConsolidate);
+        }
+
+        public static async Task saveRegisterInDb(WorkingTimeEmployeesEntity TimeEmployees, CloudTable workingTimeTable) {
+            TableOperation updateCheckEntityEmployees = TableOperation.Replace(saveRegister(TimeEmployees));
+            await workingTimeTable.ExecuteAsync(updateCheckEntityEmployees);
+        }
+
     }
 }
