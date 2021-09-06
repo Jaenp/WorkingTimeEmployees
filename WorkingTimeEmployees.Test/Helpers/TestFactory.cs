@@ -55,7 +55,7 @@ namespace WorkingTimeEmployees.Test.Helpers
             };
         }
 
-        public static DefaultHttpRequest CreateHttpRequest()
+        public static DefaultHttpRequest CreateHttpRequest(DateTime consolidatedDate)
         {
             return new DefaultHttpRequest(new DefaultHttpContext());
         }
@@ -90,6 +90,16 @@ namespace WorkingTimeEmployees.Test.Helpers
                 logger = NullLoggerFactory.Instance.CreateLogger("Null Logger");
             }
             return logger;
+        }
+
+        internal static DefaultHttpRequest CreateHttpRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static WorkingTimeEmployeesEntity GetTimeEntity()
+        {
+            throw new NotImplementedException();
         }
     }
 }
