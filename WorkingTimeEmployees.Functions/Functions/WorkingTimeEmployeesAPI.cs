@@ -194,37 +194,37 @@ namespace WorkingTimeEmployees.Functions.Functions
 
         [FunctionName(nameof(GetWorkingTimeEmployeesByDate))]
         public static async Task<IActionResult> GetWorkingTimeEmployeesByDate(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "WorkingTimeEmployees/{DateTime}")] HttpRequest req,
-            [Table("WorkingTimeEmployeesConsolidate", Connection = "AzureWebJobsStorage")] CloudTable workingTimeTable,
-            DateTime DateTime,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "WorkingTimeEmployeesConsolidate/{DateTimeEmployees}")] HttpRequest req,
+            [Table("WorkingTimeEmployeesConsolidated", Connection = "AzureWebJobsStorage")] CloudTable workingTimeTable,
+            DateTime DateTimeEmployees,
             ILogger log)
         {
-            if (string.IsNullOrEmpty(DateTime.ToString()))
+            if (string.IsNullOrEmpty(DateTimeEmployees.ToString()))
             {
-                return new BadRequestObjectResult(new Response
+                return new BadRequestObjectResult(new ResponseConsolidate
                 {
                     Message = "Insert a date valid."
                 });
             }
 
             log.LogInformation("Recieved a new register");
-            string filter = TableQuery.GenerateFilterConditionForDate("DateClient", QueryComparisons.Equal, DateTime);
+            string filter = TableQuery.GenerateFilterConditionForDate("TimeRegisterEmployees", QueryComparisons.Equal, DateTimeEmployees);
             TableQuery<WorkingTimeEmployeesConsolidate> query = new TableQuery<WorkingTimeEmployeesConsolidate>().Where(filter);
-            TableQuerySegment<WorkingTimeEmployeesConsolidate> allCheckConsolidateEntity = await workingTimeTable.ExecuteQuerySegmentedAsync(query, null);
+            TableQuerySegment<WorkingTimeEmployeesConsolidate> allWorkingTimeConsolidateEntity = await workingTimeTable.ExecuteQuerySegmentedAsync(query, null);
 
-            if (allCheckConsolidateEntity == null || allCheckConsolidateEntity.Results.Count.Equals(0))
+            if (allWorkingTimeConsolidateEntity == null || allWorkingTimeConsolidateEntity.Results.Count.Equals(0))
             {
-                return new OkObjectResult(new Response
+                return new OkObjectResult(new ResponseConsolidate
                 {
                     Message = "Date not found.",
                 });
             }
             else
             {
-                return new OkObjectResult(new Response
+                return new OkObjectResult(new ResponseConsolidate
                 {
-                    Message = $"Get all registers from consolidate. Date:{DateTime}",
-                    Result = allCheckConsolidateEntity
+                    Message = $"Get all registers from consolidate. Date:{DateTimeEmployees}",
+                    Result = allWorkingTimeConsolidateEntity
                 });
             }
         }
