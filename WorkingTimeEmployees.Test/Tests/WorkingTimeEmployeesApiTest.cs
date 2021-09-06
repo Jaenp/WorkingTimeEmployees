@@ -95,6 +95,23 @@ namespace WorkingTimeEmployees.Test.Tests
             OkObjectResult result = (OkObjectResult)response;
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
+
+        [Fact]
+        public async void GetAllWorking_Should_Return_200()
+        {
+            //Arrenge
+            MockCloudTableWorkingTimeEmployees mockCloudTableWorking = new MockCloudTableWorkingTimeEmployees(new Uri("http://127.0.0.1:10002/devstoreaccount1/reports"));
+            //WorkingTable workingRequest = TestFactory.getWorkingRequest();
+            DefaultHttpRequest request = TestFactory.CreateHttpRequest();
+
+            //Act
+            IActionResult response = await WorkingTimeEmployeesAPI.GetAllWorkingTimeEmployees(request, mockCloudTableWorking, logger);
+
+
+            //Assert
+            OkObjectResult result = (OkObjectResult)response;
+            Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
+        }
     }
 
 }
