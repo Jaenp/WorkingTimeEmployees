@@ -28,27 +28,27 @@ namespace WorkingTimeEmployees.Test.Helpers
             };
         }
 
-        public static DefaultHttpRequest CreateHttpRequest(Guid IdEmployee, StructureTableWorkingTimeEmployees workingRequest)
+        public static DefaultHttpRequest CreateHttpRequest(Guid Id_Employees, StructureTableWorkingTimeEmployees workingTimeEmployeesRequest)
         {
-            string request = JsonConvert.SerializeObject(workingRequest);
+            string request = JsonConvert.SerializeObject(workingTimeEmployeesRequest);
             return new DefaultHttpRequest(new DefaultHttpContext())
             {
                 Body = GenerateStreamFromString(request),
-                Path = $"/{IdEmployee}"
+                Path = $"/{Id_Employees}"
             };
         }
 
-        public static DefaultHttpRequest CreateHttpRequest(Guid IdEmployee)
+        public static DefaultHttpRequest CreateHttpRequest(Guid Id_Employees)
         {
             return new DefaultHttpRequest(new DefaultHttpContext())
             {
-                Path = $"/{IdEmployee}"
+                Path = $"/{Id_Employees}"
             };
         }
 
-        public static DefaultHttpRequest CreateHttpRequest(StructureTableWorkingTimeEmployees workingRequest)
+        public static DefaultHttpRequest CreateHttpRequest(StructureTableWorkingTimeEmployees workingTimeEmployeesRequest)
         {
-            string request = JsonConvert.SerializeObject(workingRequest);
+            string request = JsonConvert.SerializeObject(workingTimeEmployeesRequest);
             return new DefaultHttpRequest(new DefaultHttpContext())
             {
                 Body = GenerateStreamFromString(request),
