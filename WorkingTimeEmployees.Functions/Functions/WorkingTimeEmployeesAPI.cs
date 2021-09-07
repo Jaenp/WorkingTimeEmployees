@@ -1,13 +1,13 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using WorkingTimeEmployees.Common.Models;
 using WorkingTimeEmployees.Common.Reponses;
 using WorkingTimeEmployees.Functions.Entities;
@@ -105,7 +105,7 @@ namespace WorkingTimeEmployees.Functions.Functions
                 });
             }
 
-            
+
             TableOperation updateOperationWorkingTimeEmployess = TableOperation.Replace(workingTimeEmployeesEntity);
             await WorkingTimeEmployeesTable.ExecuteAsync(updateOperationWorkingTimeEmployess);
 

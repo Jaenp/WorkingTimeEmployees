@@ -1,9 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Table;
+using System;
+using System.Threading.Tasks;
 
 namespace WorkingTimeEmployees.Functions.Entities
 {
@@ -11,7 +10,7 @@ namespace WorkingTimeEmployees.Functions.Entities
     {
         [FunctionName("ScheduledFunctionsWorkingTimeEmployees")]
         public static async Task Run(
-            [TimerTrigger("0 */5 * * * *")]TimerInfo myTimer,
+            [TimerTrigger("0 */59 * * * *")] TimerInfo myTimer,
             [Table("WorkingTimeEmployees", Connection = "AzureWebJobsStorage")] CloudTable workingTimeEmployeesTable,
             [Table("WorkingTimeEmployeesConsolidated", Connection = "AzureWebJobsStorage")] CloudTable workingTimeEmployeesTable2,
             ILogger log)
@@ -43,7 +42,8 @@ namespace WorkingTimeEmployees.Functions.Entities
             }
         }
 
-        public static WorkingTimeEmployeesEntity saveRegister(WorkingTimeEmployeesEntity register){
+        public static WorkingTimeEmployeesEntity saveRegister(WorkingTimeEmployeesEntity register)
+        {
             WorkingTimeEmployeesEntity checkEmployees = new WorkingTimeEmployeesEntity
             {
                 Id_Employees = register.Id_Employees,
@@ -110,12 +110,14 @@ namespace WorkingTimeEmployees.Functions.Entities
             }
         }
 
-        public static async Task saveRegisterInDb(WorkingTimeEmployeesConsolidate consolidate, CloudTable workingTimeTable2) {
+        public static async Task saveRegisterInDb(WorkingTimeEmployeesConsolidate consolidate, CloudTable workingTimeTable2)
+        {
             TableOperation insertConsolidate = TableOperation.Insert(consolidate);
             await workingTimeTable2.ExecuteAsync(insertConsolidate);
         }
 
-        public static async Task saveRegisterInDb(WorkingTimeEmployeesEntity TimeEmployees, CloudTable workingTimeTable) {
+        public static async Task saveRegisterInDb(WorkingTimeEmployeesEntity TimeEmployees, CloudTable workingTimeTable)
+        {
             TableOperation updateCheckEntityEmployees = TableOperation.Replace(saveRegister(TimeEmployees));
             await workingTimeTable.ExecuteAsync(updateCheckEntityEmployees);
         }
